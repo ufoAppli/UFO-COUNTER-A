@@ -142,11 +142,11 @@ function bindPage2Events() {
     if (!counter) return;
     if (role === 'minus') {
       counter.count = Math.max(0, counter.count - 1);
-      navigator.vibrate?.(20);
+      vibrateOnce();
     }
     if (role === 'plus') {
       counter.count = Math.min(255, counter.count + 1);
-      navigator.vibrate?.(20);
+      vibrateOnce();
     }
     saveState();
     renderPage2();
@@ -365,6 +365,10 @@ function downloadBlob(blob, fileName) {
   URL.revokeObjectURL(url);
 }
 
+function vibrateOnce() {
+  navigator.vibrate?.([40, 20, 40]);
+}
+
 function startCamera() {
   const shopName = getUniqueShopName(elements.shopInput.value);
   currentCameraShopName = shopName;
@@ -372,6 +376,7 @@ function startCamera() {
   saveState();
   elements.cameraModal.classList.remove('hidden');
   elements.cameraModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then((stream) => {
     currentCameraStream = stream;
     elements.cameraView.srcObject = stream;
@@ -385,6 +390,7 @@ function startCamera() {
 function stopCamera() {
   elements.cameraModal.classList.add('hidden');
   elements.cameraModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
   if (currentCameraStream) {
     currentCameraStream.getTracks().forEach((track) => track.stop());
     currentCameraStream = null;
@@ -427,7 +433,12 @@ function exportCsv() {
   shop.photos.forEach((photo) => {
     files.push({ name: photo.name, data: Uint8Array.from(atob(photo.data), (char) => char.charCodeAt(0)) });
   });
-  downloadBlob(buildZip(files), `${sanitizeFileName(shop.name)}.zip`);
+  const csvFileName = `${sanitizeFileName(shop.name)}.csv`;
+  const zipFileName = `${sanitizeFileName(shop.name)}.zip`;
+  downloadBlob(new Blob([csvBytes], { type: 'text/csv;charset=Shift_JIS' }), csvFileName);
+  window.setTimeout(() => {
+    downloadBlob(buildZip(files), zipFileName);
+  }, 300);
 }
 
 function attachEvents() {

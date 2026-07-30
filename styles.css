@@ -14,10 +14,18 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
   background: #fff;
   color: var(--text);
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 .app-shell {
@@ -25,15 +33,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 12px;
 }
 
 .page {
   display: none;
   width: min(100%, 480px);
-  padding: 24px;
+  padding: 22px;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 20px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
@@ -55,23 +63,25 @@ h2 {
 
 input[type="text"] {
   width: 100%;
-  padding: 12px;
+  padding: 14px 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 16px;
   background: #fff;
+  font-size: 16px;
 }
 
 .button {
   width: 100%;
   border: 0;
   border-radius: 999px;
-  padding: 14px 16px;
+  padding: 15px 16px;
   color: #fff;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   margin-bottom: 12px;
   cursor: pointer;
+  min-height: 48px;
 }
 
 .button.primary {
@@ -113,13 +123,13 @@ input[type="text"] {
 }
 
 .counter-btn {
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--gray);
   color: #fff;
-  font-size: 24px;
+  font-size: 26px;
   cursor: pointer;
 }
 
@@ -152,11 +162,11 @@ input[type="text"] {
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 0;
 }
 
 .modal.hidden {
@@ -164,17 +174,22 @@ input[type="text"] {
 }
 
 .modal-card {
-  width: min(100%, 460px);
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
+  width: 100vw;
+  height: 100dvh;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #cameraView {
-  width: 100%;
-  border-radius: 12px;
+  width: 100vw;
+  height: 100dvh;
+  border-radius: 0;
   background: #000;
-  min-height: 240px;
+  object-fit: cover;
 }
 
 .modal-actions {
@@ -185,10 +200,15 @@ input[type="text"] {
 
 @media (max-width: 600px) {
   .app-shell {
-    padding: 10px;
+    padding: 8px;
   }
 
   .page {
-    padding: 18px;
+    padding: 16px;
+  }
+
+  .button {
+    padding: 16px;
+    min-height: 50px;
   }
 }
