@@ -363,9 +363,21 @@ function downloadBlob(blob, fileName) {
 
 function vibrateOnce() {
   try {
-    navigator.vibrate?.([40, 20, 40]);
-  } catch (error) {
-    // ignore
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      try {
+        navigator.vibrate([40, 20, 40]);
+      } catch (e) {
+        try {
+          navigator.vibrate(60);
+        } catch (e2) {
+          console.warn('vibrate failed', e2);
+        }
+      }
+    } else {
+      console.debug('vibrate not supported on this device/browser');
+    }
+  } catch (err) {
+    console.warn('vibrate error', err);
   }
 }
 
