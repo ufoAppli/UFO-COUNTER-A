@@ -139,10 +139,14 @@ function bindPage2Events() {
     if (role === 'minus') {
       counter.count = Math.max(0, counter.count - 1);
       vibrateOnce();
+      button.classList.add('pressed');
+      setTimeout(() => button.classList.remove('pressed'), 120);
     }
     if (role === 'plus') {
       counter.count = Math.min(255, counter.count + 1);
       vibrateOnce();
+      button.classList.add('pressed');
+      setTimeout(() => button.classList.remove('pressed'), 120);
     }
     saveState();
     renderPage2();
@@ -374,10 +378,33 @@ function vibrateOnce() {
         }
       }
     } else {
-      console.debug('vibrate not supported on this device/browser');
+      console.debug('vibrate not supported on this device/browser — using audio fallback');
+      playClickSound();
     }
   } catch (err) {
     console.warn('vibrate error', err);
+  }
+}
+
+function playClickSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 220;
+    g.gain.value = 0.0015; // very quiet
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start();
+    setTimeout(() => {
+      try { o.stop(); } catch (e) {}
+      try { ctx.close(); } catch (e) {}
+    }, 80);
+  } catch (e) {
+    // ignore audio errors
   }
 }
 
