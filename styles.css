@@ -55,6 +55,25 @@ h2 {
   margin-top: 0;
 }
 
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  background-color: #0fe2d9;
+  background-image: url("icons/icon.png");
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+
 .field-label {
   display: block;
   margin-bottom: 8px;
@@ -179,9 +198,7 @@ input[type="text"] {
   background: transparent;
   border-radius: 0;
   padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 }
 
 #cameraView {
@@ -190,12 +207,53 @@ input[type="text"] {
   border-radius: 0;
   background: #000;
   object-fit: cover;
+  display: block;
 }
 
-.modal-actions {
+.camera-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.camera-guide {
+  margin: 24px auto 0;
+  width: min(72vw, 280px);
+  height: min(72vw, 280px);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+}
+
+.camera-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  pointer-events: auto;
+}
+
+.camera-action {
+  border: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.camera-action.primary {
+  background: #fff;
+  color: #111;
+}
+
+.camera-action.secondary {
+  background: rgba(255, 255, 255, 0.8);
+  color: #111;
 }
 
 @media (max-width: 600px) {
@@ -210,5 +268,10 @@ input[type="text"] {
   .button {
     padding: 16px;
     min-height: 50px;
+  }
+
+  .app-icon {
+    width: 72px;
+    height: 72px;
   }
 }

@@ -6,7 +6,6 @@ let state = loadState();
 let currentPage = 'page1';
 let selectedShopName = null;
 let currentCameraShopName = null;
-let currentCameraStream = null;
 
 const elements = {
   page1: document.getElementById('page1'),
@@ -14,6 +13,7 @@ const elements = {
   pageA: document.getElementById('pageA'),
   pageB: document.getElementById('pageB'),
   shopInput: document.getElementById('shopInput'),
+  cameraInput: document.getElementById('cameraInput'),
   cameraBtn: document.getElementById('cameraBtn'),
   startCountBtn: document.getElementById('startCountBtn'),
   viewDataBtn: document.getElementById('viewDataBtn'),
@@ -26,11 +26,7 @@ const elements = {
   detailList: document.getElementById('detailList'),
   detailBackBtn: document.getElementById('detailBackBtn'),
   deleteShopBtn: document.getElementById('deleteShopBtn'),
-  exportCsvBtn: document.getElementById('exportCsvBtn'),
-  cameraModal: document.getElementById('cameraModal'),
-  cameraView: document.getElementById('cameraView'),
-  captureBtn: document.getElementById('captureBtn'),
-  closeCameraBtn: document.getElementById('closeCameraBtn')
+  exportCsvBtn: document.getElementById('exportCsvBtn')
 };
 
 function loadState() {
@@ -366,79 +362,144 @@ function downloadBlob(blob, fileName) {
 }
 
 function vibrateOnce() {
-  navigator.vibrate?.([40, 20, 40]);
+  try {
+    navigator.vibrate?.([40, 20, 40]);
+  } catch (error) {
+    // ignore
+  }
+}
+
+function getOrCreateActiveShopName() {
+  if (selectedShopName && getShop(selectedShopName)) {
+    return selectedShopName;
+  }
+  if (currentCameraShopName && getShop(currentCameraShopName)) {
+    selectedShopName = currentCameraShopName;
+    return currentCameraShopName;
+  }
+
+  const shopName = getUniqueShopName(elements.shopInput.value);
+  createShopEntry(shopName);
+  selectedShopName = shopName;
+  currentCameraShopName = shopName;
+  saveState();
+  return shopName;
+}
+
+function buildPhotoDownloadName(shopName, dataUrl) {
+  const safeName = (shopName || 'photo').replace(/[\\/:*?"<>|]/g, '').slice(0, 30) || 'photo';
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const mimeMatch = dataUrl.match(/^data:(.+);base64,/);
+  const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  const extension = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
+  return `${safeName}-${timestamp}.${extension}`;
+}
+
+function savePhotoViaWeb(dataUrl, shopName) {
+  const fileName = buildPhotoDownloadName(shopName, dataUrl);
+  const anchor = document.createElement('a');
+  anchor.href = dataUrl;
+  anchor.download = fileName;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  return true;
 }
 
 function startCamera() {
-  const shopName = getUniqueShopName(elements.shopInput.value);
-  currentCameraShopName = shopName;
-  createShopEntry(shopName);
-  saveState();
-  elements.cameraModal.classList.remove('hidden');
-  elements.cameraModal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then((stream) => {
-    currentCameraStream = stream;
-    elements.cameraView.srcObject = stream;
-    elements.cameraView.play().catch(() => {});
-  }).catch(() => {
-    alert('カメラへのアクセスができませんでした。');
-    stopCamera();
-  });
+  getOrCreateActiveShopName();
+  elements.cameraInput.value = '';
+  elements.cameraInput.click();
 }
 
-function stopCamera() {
-  elements.cameraModal.classList.add('hidden');
-  elements.cameraModal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-  if (currentCameraStream) {
-    currentCameraStream.getTracks().forEach((track) => track.stop());
-    currentCameraStream = null;
-  }
-  elements.cameraView.srcObject = null;
-}
+function handleFileSelection(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-function capturePhoto() {
-  const shop = getShop(currentCameraShopName);
-  if (!shop) return;
-  const canvas = document.createElement('canvas');
-  const video = elements.cameraView;
-  const width = video.videoWidth || 640;
-  const height = video.videoHeight || 480;
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, width, height);
-  canvas.toBlob(async (blob) => {
-    if (!blob) return;
-    const base64 = await blobToBase64(blob);
-    shop.photos.push({ name: `${sanitizeFileName(shop.name)}.png`, data: base64 });
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    const shopName = getOrCreateActiveShopName();
+    const shop = getShop(shopName);
+    if (!shop) return;
+
+    shop.photos.push({
+      id: Date.now() + Math.random().toString(36).slice(2),
+      name: `${sanitizeFileName(shop.name)}.png`,
+      photo: dataUrl,
+      createdAt: new Date().toISOString()
+    });
     saveState();
-    downloadBlob(blob, `${sanitizeFileName(shop.name)}.png`);
-    stopCamera();
-  }, 'image/png');
+    savePhotoViaWeb(dataUrl, shop.name);
+    window.alert('写真を保存しました。');
+  };
+  reader.onerror = () => {
+    window.alert('画像の読み込みに失敗しました。');
+  };
+  reader.readAsDataURL(file);
 }
 
-function exportCsv() {
+function sanitizeExportFileName(value) {
+  return String(value || 'photo').replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 40) || 'photo';
+}
+
+function getPhotoExtensionFromDataUrl(dataUrl) {
+  const mimeMatch = dataUrl.match(/^data:(.+);base64,/);
+  const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  if (mimeType.includes('png')) return 'png';
+  if (mimeType.includes('webp')) return 'webp';
+  return 'jpg';
+}
+
+function buildPhotoExportEntries(shop) {
+  const entries = [];
+  (shop.photos || []).forEach((photo, index) => {
+    if (!photo || !photo.photo) return;
+    const extension = getPhotoExtensionFromDataUrl(photo.photo);
+    const fileName = `${sanitizeExportFileName(shop.name)}-${index + 1}.${extension}`;
+    entries.push({ fileName, dataUrl: photo.photo });
+  });
+  return entries;
+}
+
+async function exportCurrentShopCsv() {
   const shop = getShop(selectedShopName);
   if (!shop) return;
-  const rows = ['▼筐体データ', '筐体名,カウント値'];
-  shop.counters.forEach((counter) => {
-    const title = (counter.title || '無題').replace(/,/g, '、');
-    rows.push(`${title},${counter.count}`);
+  if (typeof JSZip === 'undefined') {
+    window.alert('ZIP作成ライブラリの読み込みに失敗しました。');
+    return;
+  }
+
+  const header = ['筐体名', 'カウント値'];
+  const rows = shop.counters.map((counter) => [
+    String(counter.title || '無題').replace(/\r?\n/g, ' ').replace(/"/g, '""'),
+    String(counter.count)
+  ]);
+  const csvRows = [header, ...rows].map((cells) => cells.map((cell) => `"${String(cell ?? '').replace(/\r?\n/g, ' ').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const csvData = '\uFEFF' + csvRows;
+
+  const zip = new JSZip();
+  zip.file(`${sanitizeExportFileName(shop.name)}.csv`, csvData, { type: 'text/plain;charset=shift_jis' });
+
+  const photoEntries = buildPhotoExportEntries(shop);
+  const photoBlobs = await Promise.all(photoEntries.map(async (entry) => {
+    const response = await fetch(entry.dataUrl);
+    const blob = await response.blob();
+    return { fileName: entry.fileName, blob };
+  }));
+
+  photoBlobs.forEach((photo) => {
+    zip.file(`photos/${photo.fileName}`, photo.blob, { binary: true });
   });
-  const csv = rows.join('\r\n');
-  const csvBytes = new TextEncoder().encode(csv);
-  const files = [{ name: 'data.csv', data: csvBytes }];
-  shop.photos.forEach((photo) => {
-    files.push({ name: photo.name, data: Uint8Array.from(atob(photo.data), (char) => char.charCodeAt(0)) });
-  });
-  const csvFileName = `${sanitizeFileName(shop.name)}.csv`;
-  const zipFileName = `${sanitizeFileName(shop.name)}.zip`;
-  downloadBlob(new Blob([csvBytes], { type: 'text/csv;charset=Shift_JIS' }), csvFileName);
-  window.setTimeout(() => {
-    downloadBlob(buildZip(files), zipFileName);
-  }, 300);
+
+  if (photoEntries.length === 0) {
+    zip.file('photos/README.txt', '写真はありません。');
+  }
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(zipBlob, `${sanitizeExportFileName(shop.name)}.zip`);
+  window.alert('写真付きZIPを出力しました。');
 }
 
 function attachEvents() {
@@ -447,8 +508,7 @@ function attachEvents() {
   });
 
   elements.startCountBtn.addEventListener('click', () => {
-    const shopName = getUniqueShopName(elements.shopInput.value);
-    createShopEntry(shopName);
+    const shopName = getOrCreateActiveShopName();
     selectedShopName = shopName;
     saveState();
     renderPage2();
@@ -478,12 +538,10 @@ function attachEvents() {
     setPage('pageA');
   });
 
-  elements.exportCsvBtn.addEventListener('click', exportCsv);
-  elements.captureBtn.addEventListener('click', capturePhoto);
-  elements.closeCameraBtn.addEventListener('click', stopCamera);
-  elements.cameraModal.addEventListener('click', (event) => {
-    if (event.target === elements.cameraModal) stopCamera();
+  elements.exportCsvBtn.addEventListener('click', () => {
+    exportCurrentShopCsv();
   });
+  elements.cameraInput.addEventListener('change', handleFileSelection);
 }
 
 function init() {

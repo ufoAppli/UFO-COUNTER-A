@@ -6,12 +6,17 @@
     <meta name="theme-color" content="#ffffff" />
     <title>UFO COUNTER α</title>
     <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="app-shell">
       <section id="page1" class="page active">
-        <h1>UFO COUNTER α</h1>
+        <div class="app-header">
+          <div class="app-icon" aria-hidden="true"></div>
+          <h1>UFO COUNTER α</h1>
+        </div>
         <label class="field-label" for="shopInput">店舗名</label>
         <input id="shopInput" type="text" maxlength="30" placeholder="店舗名入力" />
         <button id="cameraBtn" class="button primary">カメラ起動</button>
@@ -40,16 +45,9 @@
       </section>
     </main>
 
-    <div id="cameraModal" class="modal hidden" aria-hidden="true">
-      <div class="modal-card">
-        <video id="cameraView" autoplay playsinline></video>
-        <div class="modal-actions">
-          <button id="captureBtn" class="button primary">撮影</button>
-          <button id="closeCameraBtn" class="button secondary">閉じる</button>
-        </div>
-      </div>
-    </div>
+    <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" />
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
