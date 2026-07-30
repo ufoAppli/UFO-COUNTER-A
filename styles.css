@@ -43,6 +43,9 @@ body {
   border: 1px solid var(--border);
   border-radius: 20px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  max-height: 100dvh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .page.active {
@@ -169,6 +172,16 @@ input[type="text"] {
   flex-direction: column;
   gap: 10px;
   margin-bottom: 16px;
+}
+
+.counter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100dvh - 260px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
 }
 
 .shop-item {
