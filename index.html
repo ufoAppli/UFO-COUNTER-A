@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>UFO COUNTER α</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section id="page1" class="page active">
+        <h1>UFO COUNTER α</h1>
+        <label class="field-label" for="shopInput">店舗名</label>
+        <input id="shopInput" type="text" maxlength="30" placeholder="店舗名入力" />
+        <button id="cameraBtn" class="button primary">カメラ起動</button>
+        <button id="startCountBtn" class="button primary">カウント開始</button>
+        <button id="viewDataBtn" class="button pink">データ閲覧</button>
+      </section>
+
+      <section id="page2" class="page">
+        <div id="counterList" class="counter-list"></div>
+        <button id="addCounterBtn" class="button pink">カウンター追加</button>
+        <button id="finishCountBtn" class="button secondary">カウント終了</button>
+      </section>
+
+      <section id="pageA" class="page">
+        <h2>店舗一覧</h2>
+        <div id="shopList" class="shop-list"></div>
+        <button id="backToHomeBtn" class="button secondary">戻る</button>
+      </section>
+
+      <section id="pageB" class="page">
+        <h2 id="shopDetailTitle">データ表示</h2>
+        <div id="detailList" class="detail-list"></div>
+        <button id="detailBackBtn" class="button pink">OK</button>
+        <button id="deleteShopBtn" class="button primary">データ削除</button>
+        <button id="exportCsvBtn" class="button yellow">CSV出力</button>
+      </section>
+    </main>
+
+    <div id="cameraModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-card">
+        <video id="cameraView" autoplay playsinline></video>
+        <div class="modal-actions">
+          <button id="captureBtn" class="button primary">撮影</button>
+          <button id="closeCameraBtn" class="button secondary">閉じる</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
