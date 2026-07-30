@@ -396,26 +396,24 @@ function handleFileSelection(event) {
   const file = event.target.files?.[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    const dataUrl = reader.result;
-    const shopName = getOrCreateActiveShopName();
-    const shop = getShop(shopName);
-    if (!shop) return;
-
-    shop.photos.push({
-      id: Date.now() + Math.random().toString(36).slice(2),
-      name: `${sanitizeFileName(shop.name)}.png`,
-      photo: dataUrl,
-      createdAt: new Date().toISOString()
-    });
-    saveState();
-    window.alert('写真を保存しました（端末には自動ダウンロードされません）。');
-  };
-  reader.onerror = () => {
-    window.alert('画像の読み込みに失敗しました。');
-  };
-  reader.readAsDataURL(file);
+  try {
+    const rawName = (elements.shopInput && elements.shopInput.value && elements.shopInput.value.trim()) || 'photo';
+    const baseName = sanitizeExportFileName(rawName);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    let ext = 'jpg';
+    if (file.type) {
+      const parts = file.type.split('/');
+      if (parts[1]) ext = parts[1].includes('png') ? 'png' : parts[1];
+    } else if (file.name && file.name.includes('.')) {
+      ext = file.name.split('.').pop();
+    }
+    const fileName = `${baseName}-${timestamp}.${ext}`;
+    downloadBlob(file, fileName);
+    window.alert('写真を端末にダウンロードしました。');
+  } catch (err) {
+    console.error(err);
+    window.alert('写真のダウンロードに失敗しました。');
+  }
 }
 
 function sanitizeExportFileName(value) {
