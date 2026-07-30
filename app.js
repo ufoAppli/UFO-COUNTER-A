@@ -386,27 +386,6 @@ function getOrCreateActiveShopName() {
   return shopName;
 }
 
-function buildPhotoDownloadName(shopName, dataUrl) {
-  const safeName = (shopName || 'photo').replace(/[\\/:*?"<>|]/g, '').slice(0, 30) || 'photo';
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const mimeMatch = dataUrl.match(/^data:(.+);base64,/);
-  const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-  const extension = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
-  return `${safeName}-${timestamp}.${extension}`;
-}
-
-function savePhotoViaWeb(dataUrl, shopName) {
-  const fileName = buildPhotoDownloadName(shopName, dataUrl);
-  const anchor = document.createElement('a');
-  anchor.href = dataUrl;
-  anchor.download = fileName;
-  anchor.style.display = 'none';
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  return true;
-}
-
 function startCamera() {
   getOrCreateActiveShopName();
   elements.cameraInput.value = '';
@@ -431,8 +410,7 @@ function handleFileSelection(event) {
       createdAt: new Date().toISOString()
     });
     saveState();
-    savePhotoViaWeb(dataUrl, shop.name);
-    window.alert('写真を保存しました。');
+    window.alert('写真を保存しました（端末には自動ダウンロードされません）。');
   };
   reader.onerror = () => {
     window.alert('画像の読み込みに失敗しました。');
