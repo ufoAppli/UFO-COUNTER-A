@@ -23,6 +23,7 @@ const elements = {
   shopList: document.getElementById('shopList'),
   backToHomeBtn: document.getElementById('backToHomeBtn'),
   shopDetailTitle: document.getElementById('shopDetailTitle'),
+  shopTotal: document.getElementById('shopTotal'),
   detailList: document.getElementById('detailList'),
   detailBackBtn: document.getElementById('detailBackBtn'),
   deleteShopBtn: document.getElementById('deleteShopBtn'),
@@ -200,7 +201,9 @@ function renderPageB() {
     renderShopList();
     return;
   }
+  const totalCount = shop.counters.reduce((sum, counter) => sum + Number(counter.count || 0), 0);
   elements.shopDetailTitle.textContent = `データ表示：${shop.name}`;
+  elements.shopTotal.textContent = `合計値：${totalCount}`;
   elements.detailList.innerHTML = '';
   if (!shop.counters.length) {
     elements.detailList.innerHTML = '<div class="detail-item">表示するデータがありません</div>';
