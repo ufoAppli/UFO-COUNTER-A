@@ -99,11 +99,13 @@ function renderPage2() {
     const card = document.createElement('div');
     card.className = 'counter-card';
     card.innerHTML = `
-      <div class="counter-row">
+      <div class="counter-row counter-row-title">
+        <input type="text" value="${counter.title}" data-role="title" data-id="${counter.id}" placeholder="ここにタイトル入力" class="counter-title-input" />
+      </div>
+      <div class="counter-row counter-row-actions">
         <button class="counter-btn counter-btn-side" data-role="minus" data-id="${counter.id}">-</button>
         <div class="counter-value-badge">${counter.count}</div>
         <button class="counter-btn counter-btn-side" data-role="plus" data-id="${counter.id}">+</button>
-        <input type="text" value="${counter.title}" data-role="title" data-id="${counter.id}" placeholder="ここにタイトル入力" class="counter-title-input" />
       </div>
     `;
     elements.counterList.appendChild(card);
