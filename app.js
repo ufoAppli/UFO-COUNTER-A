@@ -27,6 +27,7 @@ const elements = {
   detailList: document.getElementById('detailList'),
   detailBackBtn: document.getElementById('detailBackBtn'),
   deleteShopBtn: document.getElementById('deleteShopBtn'),
+  confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
   exportCsvBtn: document.getElementById('exportCsvBtn')
 };
 
@@ -551,9 +552,14 @@ function attachEvents() {
   });
 
   elements.deleteShopBtn.addEventListener('click', () => {
+    elements.confirmDeleteBtn.classList.remove('hidden');
+  });
+
+  elements.confirmDeleteBtn.addEventListener('click', () => {
     state.shops = state.shops.filter((shop) => shop.name !== selectedShopName);
     saveState();
     selectedShopName = null;
+    elements.confirmDeleteBtn.classList.add('hidden');
     renderShopList();
     setPage('pageA');
   });
