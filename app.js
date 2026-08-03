@@ -6,6 +6,9 @@ let state = loadState();
 let currentPage = 'page1';
 let selectedShopName = null;
 let currentCameraShopName = null;
+let currentCounterMode = 'counter';
+let longPressTimer = null;
+let suppressLongPressClick = false;
 
 const elements = {
   page1: document.getElementById('page1'),
@@ -19,6 +22,7 @@ const elements = {
   viewDataBtn: document.getElementById('viewDataBtn'),
   counterList: document.getElementById('counterList'),
   addCounterBtn: document.getElementById('addCounterBtn'),
+  modeToggleBtn: document.getElementById('modeToggleBtn'),
   finishCountBtn: document.getElementById('finishCountBtn'),
   shopList: document.getElementById('shopList'),
   backToHomeBtn: document.getElementById('backToHomeBtn'),
@@ -112,6 +116,10 @@ function renderPage2() {
     elements.counterList.appendChild(card);
   });
 
+  if (elements.modeToggleBtn) {
+    elements.modeToggleBtn.textContent = currentCounterMode === 'text' ? 'カウンターモード' : 'テキスト入力モード';
+  }
+
   if (currentFocusId) {
     const focusedInput = elements.counterList.querySelector(`input[data-id="${currentFocusId}"]`);
     if (focusedInput) {
@@ -131,6 +139,39 @@ function updateCounter(id, patch) {
 }
 
 function bindPage2Events() {
+  elements.counterList.addEventListener('pointerdown', (event) => {
+    const button = event.target.closest('button');
+    if (!button || currentCounterMode !== 'counter') return;
+    const id = button.getAttribute('data-id');
+    const role = button.getAttribute('data-role');
+    if (role !== 'plus') return;
+
+    longPressTimer = window.setTimeout(() => {
+      suppressLongPressClick = true;
+      const shop = getShop(selectedShopName);
+      const counter = shop?.counters.find((item) => item.id === id);
+      if (!counter) return;
+      counter.count = Math.max(0, counter.count - 1);
+      vibrateOnce();
+      saveState();
+      renderPage2();
+    }, 2000);
+  });
+
+  elements.counterList.addEventListener('pointerup', () => {
+    if (longPressTimer) {
+      window.clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  });
+
+  elements.counterList.addEventListener('pointerleave', () => {
+    if (longPressTimer) {
+      window.clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  });
+
   elements.counterList.addEventListener('click', (event) => {
     const button = event.target.closest('button');
     if (!button) return;
@@ -140,6 +181,24 @@ function bindPage2Events() {
     if (!shop) return;
     const counter = shop.counters.find((item) => item.id === id);
     if (!counter) return;
+
+    if (suppressLongPressClick) {
+      suppressLongPressClick = false;
+      return;
+    }
+
+    if (currentCounterMode === 'text') {
+      if (role === 'minus') {
+        counter.title = String(counter.title || '').slice(0, -1);
+      }
+      if (role === 'plus') {
+        counter.title = `${String(counter.title || '')}+`;
+      }
+      updateCounter(counter.id, { title: counter.title });
+      renderPage2();
+      return;
+    }
+
     if (role === 'minus') {
       counter.count = Math.max(0, counter.count - 1);
       vibrateOnce();
@@ -164,10 +223,14 @@ function bindPage2Events() {
   });
 
   elements.addCounterBtn.addEventListener('click', () => {
-    const shop = getShop(selectedShopName);
-    if (!shop) return;
+    const shop = getShop(selectedShopName);\n    if (!shop) return;
     shop.counters.push(createCounter());
     saveState();
+    renderPage2();
+  });
+
+  elements.modeToggleBtn.addEventListener('click', () => {
+    currentCounterMode = currentCounterMode === 'text' ? 'counter' : 'text';
     renderPage2();
   });
 
