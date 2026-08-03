@@ -590,6 +590,15 @@ async function exportCurrentShopCsv() {
   window.alert('写真付きZIPを出力しました。');
 }
 
+function bindTouchFallbacks() {
+  document.addEventListener('touchend', (event) => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    event.preventDefault();
+    button.click();
+  }, { passive: false });
+}
+
 function attachEvents() {
   elements.cameraBtn.addEventListener('click', () => {
     startCamera();
@@ -638,6 +647,7 @@ function attachEvents() {
 }
 
 function init() {
+  bindTouchFallbacks();
   attachEvents();
   bindPage2Events();
   setPage('page1');
