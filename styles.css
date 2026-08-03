@@ -122,6 +122,10 @@ input[type="text"] {
   background: var(--pink);
 }
 
+.button.red {
+  background: #d73333;
+}
+
 .button.secondary {
   background: var(--secondary);
 }
@@ -131,58 +135,100 @@ input[type="text"] {
   color: #111;
 }
 
-.counter-card {
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px;
+.page2-topbar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 10px;
   margin-bottom: 12px;
 }
 
-.counter-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+.page2-topbar .button {
+  width: 48%;
+  margin-bottom: 0;
+  min-width: 0;
 }
 
-.counter-row-title {
-  margin-bottom: 8px;
+.page2-topbar #finishCountBtn {
+  order: 1;
 }
 
-.counter-row-actions {
-  justify-content: space-between;
+.page2-topbar #addCounterBtn {
+  order: 2;
 }
 
-.counter-title-input {
-  flex: 1;
-  width: auto;
-  margin: 0;
+.page2-bottombar {
+  margin-top: 12px;
+}
+
+.page2-bottombar .button {
+  width: 100%;
+  margin-bottom: 0;
+  background: #7db95a;
+}
+
+.counter-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-height: calc(100dvh - 280px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
+  align-content: start;
+}
+
+.counter-card {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  min-height: 100%;
+  background: transparent;
 }
 
 .counter-btn {
-  width: 52px;
-  height: 52px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border: 0;
   border-radius: 12px;
-  background: var(--gray);
+  background: #7fa8dd;
   color: #fff;
-  font-size: 26px;
   cursor: pointer;
-  flex: 0 0 auto;
-}
-
-.counter-btn-side {
-  width: 64px;
-  min-width: 64px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: none;
 }
 
 .counter-value-badge {
-  min-width: 72px;
-  padding: 12px 10px;
-  border-radius: 12px;
-  background: #f1f1f1;
+  width: 100%;
   text-align: center;
   font-size: 22px;
   font-weight: 700;
+  line-height: 1.1;
+  padding: 0 4px;
+}
+
+.counter-title-input {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  border: 0;
+  border-radius: 0;
+  padding: 0 4px;
+  background: transparent;
+  color: #111;
+  outline: none;
+}
+
+.counter-title-input:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
 }
 
 .counter-btn.pressed {
@@ -214,13 +260,14 @@ input[type="text"] {
 }
 
 .counter-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   max-height: calc(100dvh - 260px);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
+  align-content: start;
 }
 
 .shop-item {

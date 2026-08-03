@@ -93,40 +93,57 @@ function ensureCounters(shopName) {
   return shop;
 }
 
+function initShopCounters(shopName) {
+  const shop = getShop(shopName);
+  if (!shop) return;
+  if (!shop.counters.length) {
+    shop.counters.push(createCounter());
+  }
+}
+
 function renderPage2() {
   const shop = ensureCounters(selectedShopName);
   const currentFocusId = document.activeElement?.getAttribute('data-id');
-  const currentSelectionStart = document.activeElement?.selectionStart;
-  const currentSelectionEnd = document.activeElement?.selectionEnd;
 
   elements.counterList.innerHTML = '';
   shop.counters.forEach((counter) => {
     const card = document.createElement('div');
     card.className = 'counter-card';
-    card.innerHTML = `
-      <div class="counter-row counter-row-title">
-        <input type="text" value="${counter.title}" data-role="title" data-id="${counter.id}" placeholder="ここにタイトル入力" class="counter-title-input" />
-      </div>
-      <div class="counter-row counter-row-actions">
-        <button class="counter-btn counter-btn-side" data-role="minus" data-id="${counter.id}">-</button>
-        <div class="counter-value-badge">${counter.count}</div>
-        <button class="counter-btn counter-btn-side" data-role="plus" data-id="${counter.id}">+</button>
-      </div>
-    `;
+
+    const counterButton = document.createElement('button');
+    counterButton.className = 'counter-btn';
+    counterButton.dataset.role = 'plus';
+    counterButton.dataset.id = counter.id;
+
+    const valueBadge = document.createElement('div');
+    valueBadge.className = 'counter-value-badge';
+    valueBadge.textContent = String(counter.count);
+
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.className = 'counter-title-input';
+    titleInput.dataset.role = 'title';
+    titleInput.dataset.id = counter.id;
+    titleInput.placeholder = 'テキスト入力';
+    titleInput.value = counter.title || '';
+    titleInput.disabled = currentCounterMode === 'counter';
+    titleInput.spellcheck = false;
+
+    counterButton.appendChild(valueBadge);
+    counterButton.appendChild(titleInput);
+    card.appendChild(counterButton);
     elements.counterList.appendChild(card);
   });
 
   if (elements.modeToggleBtn) {
-    elements.modeToggleBtn.textContent = currentCounterMode === 'text' ? 'カウンターモード' : 'テキスト入力モード';
+    elements.modeToggleBtn.textContent = currentCounterMode === 'text' ? 'テキスト入力モード' : 'カウンターモード';
   }
 
   if (currentFocusId) {
-    const focusedInput = elements.counterList.querySelector(`input[data-id="${currentFocusId}"]`);
+    const focusedInput = elements.counterList.querySelector(`input[data-id="${currentFocusId}"][data-role="title"]`);
     if (focusedInput) {
       focusedInput.focus();
-      if (typeof currentSelectionStart === 'number' && typeof currentSelectionEnd === 'number') {
-        focusedInput.setSelectionRange(currentSelectionStart, currentSelectionEnd);
-      }
+      focusedInput.setSelectionRange(focusedInput.value.length, focusedInput.value.length);
     }
   }
 }
@@ -188,23 +205,9 @@ function bindPage2Events() {
     }
 
     if (currentCounterMode === 'text') {
-      if (role === 'minus') {
-        counter.title = String(counter.title || '').slice(0, -1);
-      }
-      if (role === 'plus') {
-        counter.title = `${String(counter.title || '')}+`;
-      }
-      updateCounter(counter.id, { title: counter.title });
-      renderPage2();
       return;
     }
 
-    if (role === 'minus') {
-      counter.count = Math.max(0, counter.count - 1);
-      vibrateOnce();
-      button.classList.add('pressed');
-      setTimeout(() => button.classList.remove('pressed'), 120);
-    }
     if (role === 'plus') {
       counter.count = Math.min(255, counter.count + 1);
       vibrateOnce();
@@ -223,7 +226,8 @@ function bindPage2Events() {
   });
 
   elements.addCounterBtn.addEventListener('click', () => {
-    const shop = getShop(selectedShopName);\n    if (!shop) return;
+    const shop = getShop(selectedShopName);
+    if (!shop) return;
     shop.counters.push(createCounter());
     saveState();
     renderPage2();
