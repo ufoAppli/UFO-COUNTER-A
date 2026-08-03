@@ -59,6 +59,7 @@ body {
 #page2.page.active {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 h1,
@@ -150,6 +151,7 @@ input[type="text"] {
   gap: 18px;
   margin-bottom: 14px;
   background: #fff;
+  flex-shrink: 0;
 }
 
 #page2 .page2-topbar .button {
@@ -170,6 +172,7 @@ input[type="text"] {
   margin-top: auto;
   padding-top: 14px;
   background: #fff;
+  flex-shrink: 0;
 }
 
 #page2 .page2-bottombar .button {

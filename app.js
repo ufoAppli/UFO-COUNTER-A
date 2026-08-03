@@ -110,10 +110,12 @@ function renderPage2() {
     const card = document.createElement('div');
     card.className = 'counter-card';
 
-    const counterButton = document.createElement('button');
+    const counterButton = document.createElement('div');
     counterButton.className = 'counter-btn';
     counterButton.dataset.role = 'plus';
     counterButton.dataset.id = counter.id;
+    counterButton.setAttribute('role', 'button');
+    counterButton.setAttribute('tabindex', '0');
 
     const valueBadge = document.createElement('div');
     valueBadge.className = 'counter-value-badge';
@@ -157,10 +159,15 @@ function updateCounter(id, patch) {
 
 function bindPage2Events() {
   elements.counterList.addEventListener('pointerdown', (event) => {
-    const button = event.target.closest('button');
-    if (!button || currentCounterMode !== 'counter') return;
-    const id = button.getAttribute('data-id');
-    const role = button.getAttribute('data-role');
+    const input = event.target.closest('input[data-role="title"]');
+    if (input) {
+      return;
+    }
+
+    const tile = event.target.closest('.counter-btn');
+    if (!tile || currentCounterMode !== 'counter') return;
+    const id = tile.getAttribute('data-id');
+    const role = tile.getAttribute('data-role');
     if (role !== 'plus') return;
 
     longPressTimer = window.setTimeout(() => {
@@ -190,10 +197,15 @@ function bindPage2Events() {
   });
 
   elements.counterList.addEventListener('click', (event) => {
-    const button = event.target.closest('button');
-    if (!button) return;
-    const id = button.getAttribute('data-id');
-    const role = button.getAttribute('data-role');
+    const input = event.target.closest('input[data-role="title"]');
+    if (input) {
+      return;
+    }
+
+    const tile = event.target.closest('.counter-btn');
+    if (!tile) return;
+    const id = tile.getAttribute('data-id');
+    const role = tile.getAttribute('data-role');
     const shop = getShop(selectedShopName);
     if (!shop) return;
     const counter = shop.counters.find((item) => item.id === id);
@@ -211,8 +223,8 @@ function bindPage2Events() {
     if (role === 'plus') {
       counter.count = Math.min(255, counter.count + 1);
       vibrateOnce();
-      button.classList.add('pressed');
-      setTimeout(() => button.classList.remove('pressed'), 120);
+      tile.classList.add('pressed');
+      setTimeout(() => tile.classList.remove('pressed'), 120);
     }
     saveState();
     renderPage2();
