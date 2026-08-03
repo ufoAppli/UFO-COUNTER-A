@@ -60,6 +60,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100dvh;
 }
 
 h1,
@@ -152,6 +153,7 @@ input[type="text"] {
   margin-bottom: 14px;
   background: #fff;
   flex-shrink: 0;
+  min-height: 54px;
 }
 
 #page2 .page2-topbar .button {
@@ -169,10 +171,11 @@ input[type="text"] {
 }
 
 #page2 .page2-bottombar {
-  margin-top: auto;
+  margin-top: 0;
   padding-top: 14px;
   background: #fff;
   flex-shrink: 0;
+  min-height: 54px;
 }
 
 #page2 .page2-bottombar .button {
@@ -185,7 +188,7 @@ input[type="text"] {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
